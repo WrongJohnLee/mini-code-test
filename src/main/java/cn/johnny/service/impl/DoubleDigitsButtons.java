@@ -1,4 +1,9 @@
-package cn.johnny;
+package cn.johnny.service.impl;
+
+import cn.johnny.enums.ErrorCodeEnum;
+import cn.johnny.exception.InputException;
+import cn.johnny.service.AbstractDigitsButtons;
+import cn.johnny.utils.ValidateUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,30 +20,22 @@ import java.util.stream.Collectors;
 public class DoubleDigitsButtons extends AbstractDigitsButtons {
 
     @Override
-    String validate(List<Integer> input) {
-        if (input == null || input.size() == 0) {
-            return "input can't be null";
+    protected List<Integer> validateAndTransform(List<String> input)  throws InputException {
+        final ErrorCodeEnum errorCodeEnum = ValidateUtils.validate(input, 2);
+        if (errorCodeEnum != null) {
+            throw errorCodeEnum.newInputException();
         }
-        for (int i = 0; i < input.size(); i++) {
-            if (input.get(i) == null) {
-                return String.format("input[%s] can't be null", i);
-            }
-            if (input.get(i) < 0 || input.get(i) > 99) {
-                return String.format("input[%s] not in range", i);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    List<String> doGetLetters(List<Integer> input) {
-        List<String> output = new ArrayList<>();
-        final List<Integer> transformInput = input.stream()
-                .flatMap(d -> Arrays.stream(d.toString().split("")))
+        return input.stream()
+                .flatMap(d -> Arrays.stream(d.split("")))
                 .map(Integer::valueOf)
                 .filter(dg -> dg != 0 && dg != 1)
                 .collect(Collectors.toList());
-        recursiveCombination(output, "", transformInput, new AtomicInteger(0));
+    }
+
+    @Override
+    protected List<String> doGetLetters(List<Integer> input) {
+        List<String> output = new ArrayList<>();
+        recursiveCombination(output, "", input, new AtomicInteger(0));
         return output;
     }
 

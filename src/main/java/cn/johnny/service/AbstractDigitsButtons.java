@@ -1,5 +1,6 @@
-package cn.johnny;
+package cn.johnny.service;
 
+import cn.johnny.exception.InputException;
 import com.sun.istack.internal.NotNull;
 
 import java.util.*;
@@ -14,7 +15,7 @@ public abstract class AbstractDigitsButtons {
     /**
      * digits mapping letters
      **/
-    static final Map<Integer, List<String>> DIGITS_MAP = new LinkedHashMap<Integer, List<String>>();
+    protected static final Map<Integer, List<String>> DIGITS_MAP = new LinkedHashMap<Integer, List<String>>();
 
     static {
         DIGITS_MAP.put(0, Collections.singletonList(""));
@@ -32,10 +33,10 @@ public abstract class AbstractDigitsButtons {
     /**
      * validate input
      *
-     * @param input digits
-     * @return error message
+     * @param input user's input
+     * @return transform input
      */
-    abstract String validate(List<Integer> input);
+    protected abstract List<Integer> validateAndTransform(List<String> input) throws InputException;
 
     /**
      * get combination letter
@@ -43,7 +44,7 @@ public abstract class AbstractDigitsButtons {
      * @param input digits
      * @return combination letter
      */
-    abstract List<String> doGetLetters(List<Integer> input);
+    protected abstract List<String> doGetLetters(List<Integer> input);
 
     /**
      * input digits to output combination letter
@@ -51,11 +52,8 @@ public abstract class AbstractDigitsButtons {
      * @param input digits
      * @return combination letter
      */
-    public List<String> click(@NotNull List<Integer> input) throws DigitsException {
-        final String errorMsg = validate(input);
-        if (errorMsg != null) {
-            throw new DigitsException("input not validate! error message is " + errorMsg);
-        }
-        return doGetLetters(input);
+    public List<String> click(@NotNull List<String> input) throws InputException {
+        List<Integer> digits = validateAndTransform(input);
+        return doGetLetters(digits);
     }
 }
